@@ -27,9 +27,9 @@ const Navbar = () => {
     return (
         <nav className='text-lg text-white bg-blue-900 h-16 flex justify-between'>
             <div className='flex'>
-                <Link className='flex gap-3 items-center ml-3 justify-center' href={"/"}><span className='w-12 ml-6 pb-2'>
+                <Link className='flex sm:gap-3 items-center ml-3 justify-center' href={"/"}><span className='w-10 pb-3.5 sm:w-12 sm:ml-6 sm:pb-2'>
                     <Lottie_Beef />
-                </span><p className='text-3xl'>Buy Me A Burger</p></Link>
+                </span><p className='text-xl sm:text-3xl'>Buy Me A Burger</p></Link>
             </div>
             <div className='flex justify-center items-center relative'>
                 {session ? <>
@@ -47,7 +47,7 @@ const Navbar = () => {
                                     <Link href="/dashboard" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Dashboard</Link>
                                 </li>
                                 <li>
-                                    <Link href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Settings</Link>
+                                    <Link href={`/${session.user.name}`} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Your Page</Link>
                                 </li>
                                 <li>
                                     <Link href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Earnings</Link>
@@ -65,7 +65,6 @@ const Navbar = () => {
                         </span>
                     </button>
                 </> : <Link href="/login">
-
                     <button className="relative inline-flex items-center justify-center p-0.5 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover: dark: focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800">
                         <span className="text-white lg:text-lg relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
                             Login

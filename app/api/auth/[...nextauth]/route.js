@@ -1,37 +1,68 @@
-import NextAuth from 'next-auth'
-import AppleProvider from 'next-auth/providers/apple'
-import FacebookProvider from 'next-auth/providers/facebook'
-import GoogleProvider from 'next-auth/providers/google'
-import EmailProvider from 'next-auth/providers/email'
+import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
+import connectDB from "@/helpers/connectDB";
+import User from "@/models/User";
 
-
-export const authoptions =  NextAuth({
+export const authOptions = {
   providers: [
-    // OAuth authentication providers...
-    // AppleProvider({
-    //   clientId: process.env.APPLE_ID,
-    //   clientSecret: process.env.APPLE_SECRET
-    // }),
-    // FacebookProvider({
-    //   clientId: process.env.FACEBOOK_ID,
-    //   clientSecret: process.env.FACEBOOK_SECRET
-    // }),
-    // GoogleProvider({
-    //   clientId: process.env.GOOGLE_ID,
-    //   clientSecret: process.env.GOOGLE_SECRET
-    // }),
-    // // Passwordless / email sign in
-    // EmailProvider({
-    //   server: process.env.MAIL_SERVER,
-    //   from: 'NextAuth.js <no-reply@example.com>'
-    // }),
-    
-  GitHubProvider({
-    clientId: process.env.GITHUB_ID,
-    clientSecret: process.env.GITHUB_SECRET
-  })
-  ]
-})
+    GitHubProvider({
+      clientId: process.env.GITHUB_ID,
+      clientSecret: process.env.GITHUB_SECRET,
+    }),
+  ],
 
-export {authoptions as GET, authoptions as POST} 
+  callbacks: {
+    // When a user signs in
+    async signIn({ user, account }) {
+      try {
+        await connectDB();
+
+        if (account.provider === "github") {
+          // Check if user exists
+          let existingUser = await User.findOne({ email: user.email });
+
+          if (!existingUser) {
+            // Create new user
+            const newUser = new User({
+              name: user.name || user.email.split("@")[0],
+			  username: user.email.split("@")[0],
+              email: user.email,
+              profilePic: user.image,
+            });
+            await newUser.save();
+          } 
+		//   else {
+        //     // Update existing user
+        //     existingUser.name = user.name || existingUser.name;
+        //     existingUser.profilePic = user.image || existingUser.profilePic;
+        //     await existingUser.save();
+        //   }
+        }
+
+        return true;
+      } catch (error) {
+        console.error("SignIn error:", error);
+        return false;
+      }
+    },
+
+    // When creating a session
+    async session({ session }) {
+      await connectDB();
+      const dbUser = await User.findOne({ email: session.user.email });
+
+      if (dbUser) {
+        session.user.name = dbUser.name;
+		session.user.username = dbUser.username;
+        session.user.id = dbUser._id.toString();
+        session.user.profilePic = dbUser.profilePic;
+      }
+
+      return session;
+    },
+  },
+};
+
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
+
